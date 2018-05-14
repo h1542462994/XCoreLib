@@ -11,6 +11,7 @@ namespace XCore.Component
         Convert,
         Transfer,
         Collection,
+        Dictionary,
         User,
     }
 }

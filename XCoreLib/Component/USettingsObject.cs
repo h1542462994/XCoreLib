@@ -14,7 +14,7 @@ namespace XCore.Component
 {
     /// <summary>
     /// 轻量设置类,为可读写属性提供读取写入方法.
-    /// 支持基础类型及集合类型(仅支持<see cref="Array"/>和<see cref="List{T}"/>).
+    /// 支持基础类型自定义类型及集合类型(仅支持<see cref="Array"/>和<see cref="List{T}"/>).
     /// </summary>    
     public abstract class USettingsObject : XmlBase, IXSerializable
     {
@@ -74,74 +74,16 @@ namespace XCore.Component
             {
                 return ConvertType.Collection;
             }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition()== typeof(Dictionary<,>))
+            {
+                return ConvertType.Dictionary;
+            }
             else
             {
                 return ConvertType.User;
             }
         }
 
-        //private static bool TryToXElement(PropertyInfo propertyInfo, object reference, out XElement xElement)
-        //{
-        //    if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
-        //    {
-        //        string elementName = propertyInfo.Name;
-        //        XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
-        //        if (attribute != null)
-        //        {
-        //            elementName = attribute.ElementName;
-        //        }
-
-        //        object value = propertyInfo.GetValue(reference);
-
-        //        Type type = value.GetType();
-        //        ConvertType t = GetConvertType(type);
-        //        XAttribute typeXAttribute = new XAttribute("type", type);
-
-        //        if (t == ConvertType.Convert)
-        //        {
-        //            xElement = new XElement(elementName, typeXAttribute, value);
-        //            return true;
-        //        }
-        //        else if (t == ConvertType.Transfer)
-        //        {
-        //            string result = string.Empty;
-        //            if (value is System.Windows.Size size)
-        //            {
-        //                result = size.Width + "," + size.Height;
-        //            }
-        //            else if (value is System.Windows.Point point)
-        //            {
-        //                result = point.X + "," + point.Y;
-        //            }
-        //            else if (value is System.Windows.Media.Color color)
-        //            {
-        //                result = color.A + "," + color.R + "," + color.G + "," + color.B;
-        //            }
-        //            xElement = new XElement(elementName, typeXAttribute, result);
-        //            return true;
-        //        }
-        //        else if (t == ConvertType.Collection)
-        //        {
-        //            List<XElement> elements = new List<XElement>();
-        //            foreach (var item in (IEnumerable)value)
-        //            {
-        //                elements.Add(ToXElement(item));
-        //            }
-        //            xElement = new XElement(elementName, typeXAttribute, elements.ToArray());
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            throw new ArgumentException();
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        xElement = null;
-        //        return false;
-        //    }
-        //}      
 
         /// <summary>
         ///将对象转化为等价<see cref="XElement"/>.
@@ -210,6 +152,19 @@ namespace XCore.Component
                 {
                     elements.Add(ToXElement(item));
                 }
+                return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
+            }
+            else if (t == ConvertType.Dictionary)
+            {
+                List<XElement> elements = new List<XElement>();
+                foreach (dynamic item in (IEnumerable)value)
+                {
+                    XElement eKey = ToXElement(item.Key,"Key");
+                    XElement eValue = ToXElement(item.Value,"Value");
+                    XElement eKeyValuePair = new XElement("add", new XAttribute("type", item.GetType()), eKey, eValue);
+                    elements.Add(eKeyValuePair);
+                }
+
                 return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
             }
             else
@@ -281,6 +236,21 @@ namespace XCore.Component
                 {
                     return null;
                 }
+            }
+            else if (t== ConvertType.Dictionary)
+            {
+                Type keyType = type.GenericTypeArguments[0];
+                Type valueType = type.GenericTypeArguments[1];
+                Type keyValuePairType = (typeof(KeyValuePair<,>)).MakeGenericType(keyType, valueType);
+                dynamic dic = Activator.CreateInstance(type);
+                foreach (var item in element.Elements())
+                {
+                    dynamic key = ToObject(item.Element("Key"), keyType);
+                    dynamic value = ToObject(item.Element("Value"), valueType);
+                    dic.Add(key, value);
+                }
+
+                return dic;
             }
             else
             {

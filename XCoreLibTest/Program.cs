@@ -51,6 +51,11 @@ namespace XCoreLibTest
         public int[] B { get; set; } = new int[] { 1, 4, 5, 7 };
         public List<byte> C { get; set; } = new List<byte> { 1, 2, 4, 8 };
         public MSC MSC { get; set; } = new MSC { A = 12, B = true };
+        public Dictionary<string, int> DicLS { get; set; } = new Dictionary<string, int>()
+        {
+            { "123",124}
+        };
+
     }
 
     struct MSC
