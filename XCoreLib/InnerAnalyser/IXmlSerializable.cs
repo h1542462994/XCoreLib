@@ -7,7 +7,7 @@ namespace XCore.InnerAnalyser
     /// </summary>
     public interface IXSerializable
     {
-        void DeSerialize(XDocument xDocument);
-        XDocument Serialize();
+        void DeSerialize(XElement xElement);
+        XElement Serialize();
     }
 }

@@ -42,6 +42,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Component\USettingsBase.cs" />
     <Compile Include="Component\USettingsObject.cs" />
     <Compile Include="Component\ConvertType.cs" />
     <Compile Include="InnerAnalyser\IXmlSerializable.cs" />
