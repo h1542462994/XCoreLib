@@ -21,9 +21,9 @@ namespace XCore
         [XmlIgnore]
         public string Folder { get; protected set; }
         [XmlIgnore]
-        public string RootName { get;protected set; }
+        public string DisplayName { get;protected set; }
         [XmlIgnore]
-        public string FileName => Folder + RootName + ".xml";
+        public string FileName => Folder + DisplayName + ".xml";
 
         public abstract void Load();
         public abstract void Save();
@@ -36,11 +36,11 @@ namespace XCore
             await Task.Run(() => Save());
         }
 
-        protected XDocument CreateXml()
+        protected XDocument CreateXml(string root)
         {
             return new XDocument(
                 new XComment(Comment),
-                new XElement(RootName)
+                new XElement(root)
                 );
         }
     }

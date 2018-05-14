@@ -44,12 +44,18 @@ namespace XCoreLibTest
         public Example(string folder, string rootName)
         {
             Folder = folder;
-            RootName = rootName;
+            DisplayName = rootName;
         }
 
         public int A { get; set; } = 1234;
         public int[] B { get; set; } = new int[] { 1, 4, 5, 7 };
         public List<byte> C { get; set; } = new List<byte> { 1, 2, 4, 8 };
-        
+        public MSC MSC { get; set; } = new MSC { A = 12, B = true };
+    }
+
+    struct MSC
+    {
+        public int A { get; set; }
+        public bool B { get; set; }
     }
 }

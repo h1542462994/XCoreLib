@@ -16,7 +16,7 @@ namespace XCore.Component
     /// 轻量设置类,为可读写属性提供读取写入方法.
     /// 支持基础类型及集合类型(仅支持<see cref="Array"/>和<see cref="List{T}"/>).
     /// </summary>    
-    public abstract class USettingsObject : XmlBase,IXSerializable
+    public abstract class USettingsObject : XmlBase, IXSerializable
     {
         protected override string Comment => "null";
         public override void Load()
@@ -70,7 +70,7 @@ namespace XCore.Component
             {
                 return t;
             }
-            else if (type.BaseType == typeof(Array) || type.GetGenericTypeDefinition() == typeof(List<>))
+            else if (type.BaseType == typeof(Array) ||(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
             {
                 return ConvertType.Collection;
             }
@@ -80,13 +80,111 @@ namespace XCore.Component
             }
         }
 
-        private static XElement ToXElement(object value, string name = "add")
+        //private static bool TryToXElement(PropertyInfo propertyInfo, object reference, out XElement xElement)
+        //{
+        //    if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
+        //    {
+        //        string elementName = propertyInfo.Name;
+        //        XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
+        //        if (attribute != null)
+        //        {
+        //            elementName = attribute.ElementName;
+        //        }
+
+        //        object value = propertyInfo.GetValue(reference);
+
+        //        Type type = value.GetType();
+        //        ConvertType t = GetConvertType(type);
+        //        XAttribute typeXAttribute = new XAttribute("type", type);
+
+        //        if (t == ConvertType.Convert)
+        //        {
+        //            xElement = new XElement(elementName, typeXAttribute, value);
+        //            return true;
+        //        }
+        //        else if (t == ConvertType.Transfer)
+        //        {
+        //            string result = string.Empty;
+        //            if (value is System.Windows.Size size)
+        //            {
+        //                result = size.Width + "," + size.Height;
+        //            }
+        //            else if (value is System.Windows.Point point)
+        //            {
+        //                result = point.X + "," + point.Y;
+        //            }
+        //            else if (value is System.Windows.Media.Color color)
+        //            {
+        //                result = color.A + "," + color.R + "," + color.G + "," + color.B;
+        //            }
+        //            xElement = new XElement(elementName, typeXAttribute, result);
+        //            return true;
+        //        }
+        //        else if (t == ConvertType.Collection)
+        //        {
+        //            List<XElement> elements = new List<XElement>();
+        //            foreach (var item in (IEnumerable)value)
+        //            {
+        //                elements.Add(ToXElement(item));
+        //            }
+        //            xElement = new XElement(elementName, typeXAttribute, elements.ToArray());
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            throw new ArgumentException();
+        //        }
+
+        //    }
+        //    else
+        //    {
+        //        xElement = null;
+        //        return false;
+        //    }
+        //}      
+
+        /// <summary>
+        ///将对象转化为等价<see cref="XElement"/>.
+        /// </summary>
+        /// <param name="inobj">传入值,支持属性和单元值.</param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private static XElement ToXElement(object inobj, string name = "add")
         {
-            Type type = value.GetType();
+            string elementName = name;
+            Type type;
+            object value;
+            if (inobj is KeyValuePair<PropertyInfo,object> pair)
+            {
+                PropertyInfo propertyInfo = pair.Key;
+                if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
+                {
+                    elementName = propertyInfo.Name;
+                    XmlElementAttribute attribute =         (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
+                    if (attribute != null)
+                    {
+                        elementName = attribute.ElementName;
+                    }
+                    value = propertyInfo.GetValue(pair.Value);
+                    type = propertyInfo.PropertyType;
+                }
+                else
+                {
+                    return null;
+                }
+
+
+            }
+            else
+            {
+                value = inobj;
+                type = inobj.GetType();
+            }
             ConvertType t = GetConvertType(type);
+
             if (t == ConvertType.Convert)
             {
-                return new XElement(name, new XAttribute("type", type), value);
+                return new XElement(elementName, new XAttribute("type", type), value);
             }
             else if (t == ConvertType.Transfer)
             {
@@ -103,7 +201,7 @@ namespace XCore.Component
                 {
                     result = color.A + "," + color.R + "," + color.G + "," + color.B;
                 }
-                return new XElement(name, new XAttribute("type", type), result);
+                return new XElement(elementName, new XAttribute("type", type), result);
             }
             else if (t == ConvertType.Collection)
             {
@@ -112,14 +210,23 @@ namespace XCore.Component
                 {
                     elements.Add(ToXElement(item));
                 }
-                return new XElement(name, new XAttribute("type", type), elements.ToArray());
+                return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
             }
             else
             {
-                throw new ArgumentException();
+                List<XElement> elements = new List<XElement>();
+                foreach (var propertyInfo in value.GetType().GetProperties())
+                {
+                    XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, value));
+                    if (element!=null)
+                    {
+                        elements.Add(element);
+                    }
+                }
+                return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
             }
         }
-        private static object ToObject(XElement element, Type type)
+        private static dynamic ToObject(XElement element, Type type)
         {
             ConvertType t = GetConvertType(type);
             if (t == ConvertType.Convert)
@@ -152,7 +259,7 @@ namespace XCore.Component
                 {
                     Type membertype = type.GetElementType();
                     Type listtype = typeof(List<>);
-                    listtype.MakeGenericType(membertype);
+                    listtype = listtype.MakeGenericType(membertype);
                     result = Activator.CreateInstance(listtype);
                     foreach (var item in element.Elements())
                     {
@@ -177,17 +284,44 @@ namespace XCore.Component
             }
             else
             {
-                throw new ArgumentException();
+                object result = Activator.CreateInstance(type);
+
+                foreach (var propertyInfo in type.GetProperties())
+                {
+
+                    string elementName = propertyInfo.Name;
+                    XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
+                    if (attribute != null)
+                    {
+                        elementName = attribute.ElementName;
+                    }
+
+                    XElement e = element.Element(elementName);
+
+                    if (element!=null)
+                    {
+                        object o = ToObject(e, propertyInfo.PropertyType);
+                        propertyInfo.SetValue(result, o);
+                    }
+
+                }
+
+                return result;
             }
         }
+        /// <summary>
+        /// 序列化方法.
+        /// </summary>
+        /// <returns></returns>
         XDocument IXSerializable.Serialize()
         {
-            XDocument xDocument = CreateXml();
+            XDocument xDocument = CreateXml(this.GetType().ToString());
             foreach (var propertyInfo in GetType().GetProperties())
             {
-                if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
+                XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, this));
+                if (element!=null)
                 {
-                    xDocument.Root.Add(ToXElement(propertyInfo.GetValue(this), propertyInfo.Name));
+                    xDocument.Root.Add(element);
                 }
             }
             return xDocument;
@@ -196,9 +330,18 @@ namespace XCore.Component
         {
             foreach (var propertyInfo in GetType().GetProperties())
             {
-                if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) != null || propertyInfo.CanWrite)
+                if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null &&propertyInfo.CanWrite && propertyInfo.CanRead)
                 {
-                    XElement element = xDocument.Root.Element(propertyInfo.Name);
+
+                    string elementName = propertyInfo.Name;
+                    XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
+                    if (attribute != null)
+                    {
+                        elementName = attribute.ElementName;
+                    }
+
+                    XElement element = xDocument.Root.Element(elementName);
+
                     if (element != null)
                     {
                         object o = ToObject(element, propertyInfo.PropertyType);
