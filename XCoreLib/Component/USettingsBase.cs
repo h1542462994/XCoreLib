@@ -16,7 +16,7 @@ namespace XCore.Component
     /// 设置类基础类,提供必须功能.
     /// 并提供静态序列化方法.
     /// </summary>
-    public abstract class USettingsBase:XmlBase
+    public abstract class USettingsBase : XmlBase
     {
         /// <summary>
         ///将对象转化为等价<see cref="XElement"/>.
@@ -24,7 +24,7 @@ namespace XCore.Component
         /// <param name="inobj">传入值,支持属性和单元值.</param>
         /// <param name="name"></param>
         /// <returns></returns>
-        protected XElement ToXElement(object inobj, string name = "add")
+        internal static XElement ToXElement(object inobj, string name = "add")
         {
             string elementName = name;
             Type type;
@@ -76,6 +76,10 @@ namespace XCore.Component
                 {
                     result = color.A + "," + color.R + "," + color.G + "," + color.B;
                 }
+                else if (value is DateTime time)
+                {
+                    result = time.ToString();
+                }
                 return new XElement(elementName, new XAttribute("type", type), result);
             }
             else if (t == ConvertType.Collection)
@@ -120,7 +124,7 @@ namespace XCore.Component
         /// <param name="element"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected dynamic ToObject(XElement element, Type type)
+        internal static dynamic ToObject(XElement element, Type type)
         {
             ConvertType t = GetConvertType(type);
             if (t == ConvertType.Convert)
@@ -143,6 +147,10 @@ namespace XCore.Component
                 {
                     string[] x = s.Split(',');
                     o = System.Windows.Media.Color.FromArgb(byte.Parse(x[0]), byte.Parse(x[1]), byte.Parse(x[2]), byte.Parse(x[3]));
+                }
+                else if (type == typeof(DateTime))
+                {
+                    o = DateTime.Parse(s);
                 }
                 return o;
             }
@@ -218,7 +226,7 @@ namespace XCore.Component
                 return result;
             }
         }
-        protected ConvertType GetConvertType(Type type)
+        internal static ConvertType GetConvertType(Type type)
         {
             Dictionary<Type, ConvertType> dic = new Dictionary<Type, ConvertType>()
             {
@@ -236,7 +244,7 @@ namespace XCore.Component
                 {typeof(string),ConvertType.Convert },
                 {typeof(decimal),ConvertType.Convert },
                 {typeof(bool),ConvertType.Convert },
-                {typeof(DateTime),ConvertType.Convert },
+                {typeof(DateTime),ConvertType.Transfer },
                 {typeof(System.Windows.Point),ConvertType.Transfer },
                 {typeof(System.Windows.Size),ConvertType.Transfer },
                 {typeof(System.Windows.Media.Color) ,ConvertType.Transfer}
@@ -259,13 +267,87 @@ namespace XCore.Component
             }
         }
 
+        [Obsolete]
         public static object LoadObject(string fileName, Type type)
         {
             throw new NotImplementedException();
         }
+        [Obsolete]
         public static void SaveObject(object obj, string fileName, Type type)
         {
             throw new NotImplementedException();
+        }
+        /// <summary>
+        /// 用序列化方法加载reference的成员.
+        /// </summary>
+        /// <param name="reference">引用.</param>
+        /// <param name="fileName">xml文件名.</param>
+        /// <param name="option">操作.</param>
+        /// <param name="condition">判断条件,用以忽略不必要的属性.</param>
+        public static void XSerialize(object reference, string fileName, XSerializeOption option, Predicate<string> condition = null)
+        {
+            if (option == XSerializeOption.Serialize)
+            {
+                string comment = "设置类1.0.4.0版本,基于USettingsObject.";
+
+                XElement xElement = new XElement(reference.GetType().ToString());
+                foreach (var propertyInfo in reference.GetType().GetProperties())
+                {
+                    if (condition == null || condition(propertyInfo.Name))
+                    {
+                        XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, reference));
+                        if (element != null)
+                        {
+                            xElement.Add(element);
+                        }
+                    }
+                }
+
+                XDocument xDocument = new XDocument(new XComment(comment), xElement);
+                xDocument.Save(fileName);
+            }
+            else
+            {
+                if (File.Exists(fileName))
+                {
+                    XDocument xDocument;
+                    try
+                    {
+                        xDocument = XDocument.Load(fileName);
+                    }
+                    catch (Exception)//>>说明文件被破坏
+                    {
+                        File.Delete(fileName);
+                        return;
+                    }
+
+                    foreach (var propertyInfo in reference.GetType().GetProperties())
+                    {
+                        if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
+                        {
+
+                            string elementName = propertyInfo.Name;
+                            XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
+                            if (attribute != null)
+                            {
+                                elementName = attribute.ElementName;
+                            }
+
+                            XElement element = xDocument.Root.Element(elementName);
+
+                            if (element != null)
+                            {
+                                if (condition == null || condition(elementName))
+                                {
+                                    object o = ToObject(element, propertyInfo.PropertyType);
+                                    propertyInfo.SetValue(reference, o);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

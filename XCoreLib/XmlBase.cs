@@ -36,7 +36,7 @@ namespace XCore
             await Task.Run(() => Save());
         }
 
-        protected XDocument CreateXml(string root)
+        protected  XDocument CreateXml(string root)
         {
             return new XDocument(
                 new XComment(Comment),

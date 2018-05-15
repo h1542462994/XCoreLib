@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using XCore;
+using XCore.Component;
 
 namespace XCoreLibTest
 {
@@ -31,6 +32,15 @@ namespace XCoreLibTest
                         example.A++;
                         Console.WriteLine(example.A);
                         break;
+                    case "x":
+                        USettingsBase.XSerialize(example, AppDomain.CurrentDomain.BaseDirectory + "4.xml", XSerializeOption.Serialize);
+                        break;
+                    case "loggger":
+                        ULogger.Write(new ULoggerInfo("123", DateTime.Now));
+                        break;
+                    case "exc":
+                        ULogger.Write(new UException(new ArgumentException("149"), "184", DateTime.Now, false));
+                        break;
                     default:
                         break;
                 }
@@ -39,7 +49,7 @@ namespace XCoreLibTest
         }
     }
 
-    class Example : XCore.Component.USettingsObject
+    class Example : USettingsObject
     {
         public Example(string folder, string rootName)
         {
