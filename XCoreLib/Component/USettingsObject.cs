@@ -77,10 +77,14 @@ namespace XCore.Component
                     }
 
                     XElement element = xElement.Element(elementName);
-
+                    Type contentType = Type.GetType(element.Attribute("type").Value);
+                    if (!IsBaseTypeOfType(contentType,propertyInfo.GetType()))
+                    {
+                        contentType = propertyInfo.GetType();
+                    }
                     if (element != null)
                     {
-                        object o = ToObject(element, propertyInfo.PropertyType);
+                        object o = ToObject(element, contentType);
                         propertyInfo.SetValue(this, o);
                     }
                 }

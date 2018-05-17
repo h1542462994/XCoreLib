@@ -41,7 +41,7 @@ namespace XCore.Component
                         elementName = attribute.ElementName;
                     }
                     value = propertyInfo.GetValue(pair.Value);
-                    type = propertyInfo.PropertyType;
+                    type = value.GetType();
                 }
                 else
                 {
@@ -214,13 +214,16 @@ namespace XCore.Component
                     }
 
                     XElement e = element.Element(elementName);
-
+                    Type contentType = Type.GetType(e.Attribute("type").Value);
+                    if (!IsBaseTypeOfType(contentType, propertyInfo.GetType()))
+                    {
+                        contentType = propertyInfo.GetType();
+                    }
                     if (element != null)
                     {
-                        object o = ToObject(e, propertyInfo.PropertyType);
+                        object o = ToObject(e, contentType);
                         propertyInfo.SetValue(result, o);
                     }
-
                 }
 
                 return result;
@@ -265,6 +268,30 @@ namespace XCore.Component
             {
                 return ConvertType.User;
             }
+        }
+        internal static bool IsBaseTypeOfType(Type derivedType, Type baseType)
+        {
+            if (derivedType == baseType )
+            {
+                return true;
+            }
+            else if (baseType == typeof(object))
+            {
+                return true;
+            }
+            else
+            {
+                Type t = derivedType.BaseType;
+                while (t!= typeof(object))
+                {
+                    if (t == baseType)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
         }
 
         [Obsolete]

@@ -65,7 +65,7 @@ namespace XCoreLibTest
         {
             { "123",124}
         };
-
+        public object PX { get; set; } = 12;
     }
 
     struct MSC
