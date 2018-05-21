@@ -59,7 +59,7 @@ namespace XCore.Component
 
             if (t == ConvertType.Convert)
             {
-                return new XElement(elementName, new XAttribute("type", type), value);
+                return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), value);
             }
             else if (t == ConvertType.Transfer)
             {
@@ -80,7 +80,7 @@ namespace XCore.Component
                 {
                     result = time.ToString();
                 }
-                return new XElement(elementName, new XAttribute("type", type), result);
+                return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), result);
             }
             else if (t == ConvertType.Collection)
             {
@@ -89,7 +89,7 @@ namespace XCore.Component
                 {
                     elements.Add(ToXElement(item));
                 }
-                return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
+                return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), elements.ToArray());
             }
             else if (t == ConvertType.Dictionary)
             {
@@ -98,11 +98,11 @@ namespace XCore.Component
                 {
                     XElement eKey = ToXElement(item.Key, "Key");
                     XElement eValue = ToXElement(item.Value, "Value");
-                    XElement eKeyValuePair = new XElement("add", new XAttribute("type", item.GetType()), eKey, eValue);
+                    XElement eKeyValuePair = new XElement("add", new XAttribute("type", ((Type)item.GetType()).GetAssemblyQualifiedName()), eKey, eValue);
                     elements.Add(eKeyValuePair);
                 }
 
-                return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
+                return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), elements.ToArray());
             }
             else
             {
@@ -115,7 +115,7 @@ namespace XCore.Component
                         elements.Add(element);
                     }
                 }
-                return new XElement(elementName, new XAttribute("type", type), elements.ToArray());
+                return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), elements.ToArray());
             }
         }
         /// <summary>
@@ -215,15 +215,10 @@ namespace XCore.Component
 
                     XElement e = element.Element(elementName);
                     Type contentType = Type.GetType(e.Attribute("type").Value);
-                    if (!IsBaseTypeOfType(contentType, propertyInfo.GetType()))
-                    {
-                        contentType = propertyInfo.GetType();
-                    }
-                    if (element != null)
-                    {
-                        object o = ToObject(e, contentType);
-                        propertyInfo.SetValue(result, o);
-                    }
+
+                    object o = ToObject(e, contentType);
+                    propertyInfo.SetValue(result, o);
+
                 }
 
                 return result;
@@ -269,37 +264,13 @@ namespace XCore.Component
                 return ConvertType.User;
             }
         }
-        internal static bool IsBaseTypeOfType(Type derivedType, Type baseType)
-        {
-            if (derivedType == baseType )
-            {
-                return true;
-            }
-            else if (baseType == typeof(object))
-            {
-                return true;
-            }
-            else
-            {
-                Type t = derivedType.BaseType;
-                while (t!= typeof(object))
-                {
-                    if (t == baseType)
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
 
-        }
-
-        [Obsolete]
+        [Obsolete("", true)]
         public static object LoadObject(string fileName, Type type)
         {
             throw new NotImplementedException();
         }
-        [Obsolete]
+        [Obsolete("", true)]
         public static void SaveObject(object obj, string fileName, Type type)
         {
             throw new NotImplementedException();
@@ -311,7 +282,7 @@ namespace XCore.Component
         /// <param name="fileName">xml文件名.</param>
         /// <param name="option">操作.</param>
         /// <param name="condition">判断条件,用以忽略不必要的属性.</param>
-        public static void XSerialize(object reference, string fileName, XSerializeOption option, Predicate<string> condition = null)
+        internal static void XSerialize(object reference, string fileName, XSerializeOption option, Predicate<string> condition = null)
         {
             if (option == XSerializeOption.Serialize)
             {
@@ -376,5 +347,23 @@ namespace XCore.Component
                 }
             }
         }
+
+    }
+
+    public class XSerializer<T>
+    {
+        public XSerializer(T reference, string fileName, Predicate<string> condition = null)
+        {
+            Reference = reference;
+            FileName = fileName;
+            Condition = condition;
+        }
+
+        public T Reference { get; }
+        public string FileName { get; set; }
+        public Predicate<string> Condition { get; set; }
+
+        public void Serialize() => USettingsBase.XSerialize((object)Reference, FileName, XSerializeOption.Serialize, Condition);
+        public void DeSerialize() => USettingsBase.XSerialize(Reference, FileName, XSerializeOption.DeSerialize, Condition);
     }
 }

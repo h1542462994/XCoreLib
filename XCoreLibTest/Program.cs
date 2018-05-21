@@ -12,6 +12,7 @@ namespace XCoreLibTest
     class Program
     {
         static Example example = new Example(AppDomain.CurrentDomain.BaseDirectory, "settings");
+        static readonly XSerializer<Example> xSerializer = new XSerializer<Example>(example, AppDomain.CurrentDomain.BaseDirectory + "1.xml");
         static void Main(string[] args)
         {
             while (true)
@@ -22,26 +23,19 @@ namespace XCoreLibTest
                 {
                     case "save":
                         example.Save();
-                        Console.WriteLine(example.A);
                         break;
                     case "load":
                         example.Load();
-                        Console.WriteLine(example.A);
                         break;
                     case "add":
-                        example.A++;
-                        Console.WriteLine(example.A);
+                        example.A += (int) Math.IEEERemainder( DateTime.Now.Millisecond,55);
+                        for (int i = 0; i < example.B.Length; i++)
+                        {
+                            example.B[i]++;
+                        }
                         break;
-                    case "x":
-                        USettingsBase.XSerialize(example, AppDomain.CurrentDomain.BaseDirectory + "4.xml", XSerializeOption.Serialize);
-                        break;
-                    case "loggger":
-                        ULogger.Write(new ULoggerInfo("123", DateTime.Now));
-                        break;
-                    case "exc":
-                        ULogger.Write(new UException(new ArgumentException("149"), "184", DateTime.Now, false));
-                        break;
-                    default:
+                    case "print":
+                        Console.WriteLine(example);
                         break;
                 }
             }
@@ -66,11 +60,20 @@ namespace XCoreLibTest
             { "123",124}
         };
         public object PX { get; set; } = 12;
+
+        public override string ToString()
+        {
+            return string.Format("A:{0};\nB:{1},\nMSC:{2}",A,string.Join(";",B),MSC);
+        } 
     }
 
     struct MSC
     {
         public int A { get; set; }
         public bool B { get; set; }
+        public override string ToString()
+        {
+            return A + " " + B;
+        }
     }
 }
