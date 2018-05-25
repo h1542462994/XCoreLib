@@ -51,9 +51,14 @@
     <Compile Include="Component\USettingsObject.cs" />
     <Compile Include="Component\ConvertType.cs" />
     <Compile Include="Component\XSerializeOption.cs" />
-    <Compile Include="InnerAnalyser\Extension.cs" />
+    <Compile Include="Extension.cs" />
     <Compile Include="InnerAnalyser\IXmlSerializable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Remoting\FileExtensions.cs" />
+    <Compile Include="Remoting\Ftp\FtpFileType.cs" />
+    <Compile Include="Remoting\Ftp\FtpBaseUri.cs" />
+    <Compile Include="Remoting\Ftp\FtpFileSystemInfo.cs" />
+    <Compile Include="Remoting\Ftp\FtpHelper.cs" />
     <Compile Include="XmlBase.cs" />
   </ItemGroup>
   <ItemGroup />

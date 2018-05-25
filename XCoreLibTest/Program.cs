@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using XCore;
 using XCore.Component;
-
+using XCore.Remoting;
+using XCore.Remoting.Ftp;
 namespace XCoreLibTest
 {
     class Program
     {
-        static Example example = new Example(AppDomain.CurrentDomain.BaseDirectory, "settings");
-        static readonly XSerializer<Example> xSerializer = new XSerializer<Example>(example, AppDomain.CurrentDomain.BaseDirectory + "1.xml");
         static void Main(string[] args)
         {
             while (true)
@@ -21,59 +20,60 @@ namespace XCoreLibTest
    
                 switch (t)
                 {
-                    case "save":
-                        example.Save();
-                        break;
-                    case "load":
-                        example.Load();
-                        break;
-                    case "add":
-                        example.A += (int) Math.IEEERemainder( DateTime.Now.Millisecond,55);
-                        for (int i = 0; i < example.B.Length; i++)
+                    case "list":
+                        FtpFolderInfo a = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"),"");
+                        foreach (var item in a.GetDetails())
                         {
-                            example.B[i]++;
+                            Console.WriteLine(item);
+                        }
+                        a.GoToDirectory("教学处/");
+                        foreach (var item in a.GetDetails())
+                        {
+                            Console.WriteLine(item);
                         }
                         break;
-                    case "print":
-                        Console.WriteLine(example);
+                    case "create":
+                        FtpFolderInfo folderInfo = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"), "教学处/2018届/");
+                        foreach (var item in folderInfo.GetFtpFileSystemInfos())
+                        {
+                            Console.WriteLine(item.DisplayName);
+                            if (item is FtpFileInfo info)
+                            {
+                                Console.WriteLine(info.Extension);
+                            }
+                        }
                         break;
+                    case "test":
+                        FtpFolderInfo f = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"), "");
+                        f.GetFtpFileSystemInfos();
+                        break;
+                        //case "download":
+                        //    FtpFolderInfo ftpFolderInfo = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"), "总务处/");
+
+                        //    Foreach(ftpFolderInfo);
+                        //    break;
                 }
             }
 
         }
-    }
 
-    class Example : USettingsObject
-    {
-        public Example(string folder, string rootName)
+        static  void Foreach(FtpFolderInfo info)
         {
-            Folder = folder;
-            DisplayName = rootName;
-        }
+            Console.WriteLine(">>>>>>>>" + info.Uri);
+            foreach (var item in info.GetFtpFiles())
+            {
+                Console.WriteLine(item.Uri);
+                if (FileExtensions.Pictures.Contains(item.Extension.ToLower()))
+                {
+                    item.Download(AppDomain.CurrentDomain.BaseDirectory + "Pic/");
+                    Console.WriteLine("download");
 
-        public int A { get; set; } = 1234;
-        public int[] B { get; set; } = new int[] { 1, 4, 5, 7 };
-        public List<byte> C { get; set; } = new List<byte> { 1, 2, 4, 8 };
-        public MSC MSC { get; set; } = new MSC { A = 12, B = true };
-        public Dictionary<string, int> DicLS { get; set; } = new Dictionary<string, int>()
-        {
-            { "123",124}
-        };
-        public object PX { get; set; } = 12;
-
-        public override string ToString()
-        {
-            return string.Format("A:{0};\nB:{1},\nMSC:{2}",A,string.Join(";",B),MSC);
-        } 
-    }
-
-    struct MSC
-    {
-        public int A { get; set; }
-        public bool B { get; set; }
-        public override string ToString()
-        {
-            return A + " " + B;
+                }
+            }
+            foreach (var item in info.GetFtpFolders())
+            {
+                Foreach(item);
+            }
         }
     }
 }
