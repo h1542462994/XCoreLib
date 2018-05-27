@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "item", "item", "{205E82F6-4
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpWpf", "FtpWpf\FtpWpf.csproj", "{646831A9-0F51-4B11-A46C-A5764F151C1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{602D4061-EB88-4F38-826C-29A3502F8A66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{602D4061-EB88-4F38-826C-29A3502F8A66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{602D4061-EB88-4F38-826C-29A3502F8A66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

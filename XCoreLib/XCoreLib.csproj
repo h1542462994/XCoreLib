@@ -59,6 +59,8 @@
     <Compile Include="Remoting\Ftp\FtpBaseUri.cs" />
     <Compile Include="Remoting\Ftp\FtpFileSystemInfo.cs" />
     <Compile Include="Remoting\Ftp\FtpHelper.cs" />
+    <Compile Include="Remoting\Ftp\AsyncTask.cs" />
+    <Compile Include="Remoting\Ftp\FtpTask.cs" />
     <Compile Include="XmlBase.cs" />
   </ItemGroup>
   <ItemGroup />

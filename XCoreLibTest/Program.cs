@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using XCore;
@@ -17,16 +18,16 @@ namespace XCoreLibTest
             while (true)
             {
                 string t = Console.ReadLine();
-   
+
                 switch (t)
                 {
                     case "list":
-                        FtpFolderInfo a = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"),"");
+                        FtpFolderInfo a = new FtpFolderInfo(new FtpBaseUri("192.168.1.1"), "");
                         foreach (var item in a.GetDetails())
                         {
                             Console.WriteLine(item);
                         }
-                        a.GoToDirectory("教学处/");
+                        a.GoToUri("教学处/");
                         foreach (var item in a.GetDetails())
                         {
                             Console.WriteLine(item);
@@ -47,17 +48,12 @@ namespace XCoreLibTest
                         FtpFolderInfo f = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"), "");
                         f.GetFtpFileSystemInfos();
                         break;
-                        //case "download":
-                        //    FtpFolderInfo ftpFolderInfo = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"), "总务处/");
-
-                        //    Foreach(ftpFolderInfo);
-                        //    break;
                 }
             }
 
         }
 
-        static  void Foreach(FtpFolderInfo info)
+        static void Foreach(FtpFolderInfo info)
         {
             Console.WriteLine(">>>>>>>>" + info.Uri);
             foreach (var item in info.GetFtpFiles())
@@ -76,4 +72,7 @@ namespace XCoreLibTest
             }
         }
     }
+
+
+
 }
