@@ -45,6 +45,7 @@
     <Compile Include="Component\Editor\USettingsEditor.cs" />
     <Compile Include="Component\Editor\USettingsElement.cs" />
     <Compile Include="Component\Editor\UType.cs" />
+    <Compile Include="Component\Linq\ElementTree.cs" />
     <Compile Include="Component\UException.cs" />
     <Compile Include="Component\ULogger.cs" />
     <Compile Include="Component\USettingsBase.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="InnerAnalyser\IXmlSerializable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Remoting\FileExtensions.cs" />
+    <Compile Include="Remoting\Ftp\FtpElementTreeBuilder.cs" />
     <Compile Include="Remoting\Ftp\FtpFileType.cs" />
     <Compile Include="Remoting\Ftp\FtpBaseUri.cs" />
     <Compile Include="Remoting\Ftp\FtpFileSystemInfo.cs" />

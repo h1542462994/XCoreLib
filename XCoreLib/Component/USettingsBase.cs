@@ -347,7 +347,53 @@ namespace XCore.Component
                 }
             }
         }
+        internal static void XSerialize(object reference, ref XElement xDocument, XSerializeOption option, Predicate<string> condition = null)
+        {
+            if (option == XSerializeOption.Serialize)
+            {
+                XElement xElement = new XElement(reference.GetType().ToString());
+                foreach (var propertyInfo in reference.GetType().GetProperties())
+                {
+                    if (condition == null || condition(propertyInfo.Name))
+                    {
+                        XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, reference));
+                        if (element != null)
+                        {
+                            xElement.Add(element);
+                        }
+                    }
+                }
+                xDocument = xElement;
+            }
+            else
+            {
+                foreach (var propertyInfo in reference.GetType().GetProperties())
+                {
+                    if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
+                    {
 
+                        string elementName = propertyInfo.Name;
+                        XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
+                        if (attribute != null)
+                        {
+                            elementName = attribute.ElementName;
+                        }
+
+                        XElement element = xDocument. Element(elementName);
+
+                        if (element != null)
+                        {
+                            if (condition == null || condition(elementName))
+                            {
+                                object o = ToObject(element, propertyInfo.PropertyType);
+                                propertyInfo.SetValue(reference, o);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public class XSerializer<T>
