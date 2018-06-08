@@ -13,6 +13,7 @@ namespace XCore.Component.Linq
 
     public abstract class ElementTree : ICollection<ElementTree>, IXSerializable
     {
+        protected ElementTree() { }
         protected ElementTree(string identiter,params ElementTree[] children)
         {
             foreach (var item in children)
@@ -143,7 +144,6 @@ namespace XCore.Component.Linq
                 return tree;
             }
         }
-
 
         public virtual string GetContentString()
         {
