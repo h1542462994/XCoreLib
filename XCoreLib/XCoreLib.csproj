@@ -31,8 +31,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,6 +66,8 @@
     <Compile Include="Remoting\Ftp\FtpHelper.cs" />
     <Compile Include="Remoting\Ftp\AsyncTask.cs" />
     <Compile Include="Remoting\Ftp\FtpTask.cs" />
+    <Compile Include="Windows\MouseHook.cs" />
+    <Compile Include="Windows\WindowsExtension.cs" />
     <Compile Include="XmlBase.cs" />
   </ItemGroup>
   <ItemGroup />
