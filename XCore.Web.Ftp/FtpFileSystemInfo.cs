@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using System.Net;
 using System.Xml.Serialization;
 
-namespace XCore.Remoting.Ftp
+namespace XCore.Web.Ftp
 {
     /// <summary>
     /// 表示一个ftp对象.

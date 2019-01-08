@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XCore.Remoting
+namespace XCore.Web.Ftp
 {
     public static class FileExtensions
     {

@@ -13,12 +13,14 @@ namespace XCore.Component
     /// <summary>
     /// 控制<see cref="IXSettings.XSerialize(object, string, XSerializeOption, Predicate{string})"/>的操作.
     /// </summary>
+    [Obsolete]
     public enum XSerializeOption
     {
         Serialize,
         DeSerialize
     }
 
+    [Obsolete]
     public class XSerializer<T>
     {
         public XSerializer(T reference, string fileName, Predicate<string> condition = null)
@@ -50,7 +52,7 @@ namespace XCore.Component
                 {
                     if (condition == null || condition(propertyInfo.Name))
                     {
-                        XElement element = IXSettings.ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, reference));
+                        XElement element = IXSettingsExtension.ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, reference));
                         if (element != null)
                         {
                             xElement.Add(element);
@@ -94,7 +96,7 @@ namespace XCore.Component
                             {
                                 if (condition == null || condition(elementName))
                                 {
-                                    object o = IXSettings.ToObject(element, propertyInfo.PropertyType);
+                                    object o = IXSettingsExtension.ToObject(element, propertyInfo.PropertyType);
                                     propertyInfo.SetValue(reference, o);
                                 }
 

@@ -6,8 +6,9 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XCore.Remoting.Ftp
+namespace XCore.Web.Ftp
 {
+    [Obsolete("请改用FtpFileSystemInfo")]
     public class FtpHelper
     {
         string ftpServerIP;

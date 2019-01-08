@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XCore.Remoting.Ftp
+namespace XCore.Web.Ftp
 {
     /// <summary>
     /// 表示Ftp依赖的Credentials及ServerIP.

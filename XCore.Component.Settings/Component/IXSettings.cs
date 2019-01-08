@@ -30,7 +30,7 @@ namespace XCore.Component
     /// 支持基础类型自定义类型及集合类型(仅支持<see cref="Array"/>,<see cref="List{T}"/>和<see cref="Dictionary{TKey, TValue}"/>).
     /// </summary>
     [Obsolete]
-    public interface IXSettings : IXmlFile
+    public interface IXSettings : IXmlFileEntity
     {
         void OnSettingsInitialized();
     }
@@ -243,7 +243,7 @@ namespace XCore.Component
                     }
 
                     XElement e = element.Element(elementName);
-                    Type contentType = ToolKitExtensions.GetAssemblyQualifiedType(e.Attribute("type").Value);
+                    Type contentType = MyTypeExtension.GetAssemblyQualifiedType(e.Attribute("type").Value);
 
                     object o = ToObject(e, contentType);
                     propertyInfo.SetValue(result, o);
@@ -314,7 +314,7 @@ namespace XCore.Component
                         }
 
                         XElement element = xElement.Element(elementName);
-                        Type contentType = ToolKitExtensions.GetAssemblyQualifiedType(element.Attribute("type").Value);
+                        Type contentType = MyTypeExtension.GetAssemblyQualifiedType(element.Attribute("type").Value);
 
 
 
@@ -356,13 +356,13 @@ namespace XCore.Component
                     File.Delete(obj._FileName());
                     return;
                 }
-                ((IXSerializable)obj).DeSerialize(xDocument.Root);
+                obj.DeSerialize(xDocument.Root);
             }
             obj.OnSettingsInitialized();
         }
         public static void Save(this IXSettings obj)
         {
-            XElement xElement = ((IXSerializable)obj).Serialize();
+            XElement xElement = obj.Serialize();
             XDocument xDocument = new XDocument(new XComment(obj._Comment), xElement);
             if (!Directory.Exists(Path.GetDirectoryName(obj._FileName())))
             {

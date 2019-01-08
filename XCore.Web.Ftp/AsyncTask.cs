@@ -5,9 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using XCore.Component;
 
-namespace XCore.Remoting.Ftp
+namespace XCore.Web.Ftp
 {
     /// <summary>
     /// 表示一种可以暂停并继续的操作.

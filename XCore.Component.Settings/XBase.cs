@@ -8,32 +8,27 @@ using System.Xml.Serialization;
 
 namespace XCore
 {
+    public interface IFileEntity
+    {
+        string _Folder { get; }
+        string _DisplayName { get; }
+    }
+
     /// <summary>
     /// 为基于<see cref="XDocument"/>操作的类提供基类.
     /// </summary>
-    public interface IXmlFile
+    public interface IXmlFileEntity:IFileEntity
     {
-        /// <summary>
-        /// Xml文档的注释
-        /// </summary>
         string _Comment { get; }
-        /// <summary>
-        /// Xml所存的文件夹
-        /// </summary>
-        string _Folder { get;}
-        /// <summary>
-        /// Xml文件的名称
-        /// </summary>
-        string _DisplayName { get;}
     }
 
-    public static class IXmlFileExtension
+    public static class IFileEntityExtension
     {
-        public static string _FileName(this IXmlFile obj)
+        public static string _FileName(this IFileEntity obj)
         {
             return obj._Folder + obj._DisplayName + ".xml";
         }
-        public static XDocument CreateNew(this IXmlFile obj, string root)
+        public static XDocument CreateNew(this IXmlFileEntity obj, string root)
         {
             return new XDocument(
                 new XComment(obj._Comment),

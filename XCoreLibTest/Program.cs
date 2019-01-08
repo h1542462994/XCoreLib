@@ -5,12 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using XCore;
-using XCore.Component;
-using XCore.InnerAnalyser;
-using XCore.Component.Linq;
-using XCore.Remoting;
-using XCore.Remoting.Ftp;
+using XCore.Web.Ftp;
 using System.Xml.Linq;
 
 namespace XCoreLibTest
@@ -52,22 +47,6 @@ namespace XCoreLibTest
                         FtpFolderInfo f = new FtpFolderInfo(new FtpBaseUri("192.168.8.215"), "");
                         f.GetFtpFileSystemInfos();
                         break;
-                    case "int":
-                        StringTree tree = new StringTree("4",
-                            new StringTree("125"), new StringTree("ASFd"));
-                        Console.WriteLine(tree.ToString());
-                        XElement element = ((IXSerializable)tree).Serialize();
-                        Console.WriteLine(element);
-
-                        ((IXSerializable)tree["ASFd"]).DeSerialize(element);
-                        Console.WriteLine(tree.ToString());
-                        XElement e = ElementTree.ToXElement(tree);
-                        Console.WriteLine(e);
-                        StringTree st = ElementTree.ToElementTree<StringTree>(e);
-                        Console.WriteLine(st);
-                        st.Save(AppDomain.CurrentDomain.BaseDirectory + "tree.xml");
-                        break;
-                            
                 }
             }
 
