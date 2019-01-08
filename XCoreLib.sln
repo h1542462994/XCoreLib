@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCoreLib", "XCoreLib\XCoreLib.csproj", "{65112475-1D8B-4B02-B5CB-18F4780E9665}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCoreLibTest", "XCoreLibTest\XCoreLibTest.csproj", "{EFF68351-8F28-4F22-9139-0FE5990CD6CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCorePersentationLib", "XCorePersentationLib\XCorePersentationLib.csproj", "{602D4061-EB88-4F38-826C-29A3502F8A66}"
@@ -16,16 +14,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "item", "item", "{205E82F6-4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpWpf", "FtpWpf\FtpWpf.csproj", "{646831A9-0F51-4B11-A46C-A5764F151C1A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCore.Component.Settings", "XCore.Component.Settings\XCore.Component.Settings.csproj", "{65112475-1D8B-4B02-B5CB-18F4780E9665}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFF68351-8F28-4F22-9139-0FE5990CD6CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFF68351-8F28-4F22-9139-0FE5990CD6CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFF68351-8F28-4F22-9139-0FE5990CD6CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -38,6 +34,10 @@ Global
 		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{646831A9-0F51-4B11-A46C-A5764F151C1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65112475-1D8B-4B02-B5CB-18F4780E9665}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

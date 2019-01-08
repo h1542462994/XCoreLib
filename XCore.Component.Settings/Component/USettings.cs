@@ -1,22 +1,42 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using System.IO;
-using System.Collections;
-using XCore.InnerAnalyser;
 
 namespace XCore.Component
 {
     /// <summary>
-    /// 设置类基础类,提供必须功能.
-    /// 并提供静态序列化方法.
+    /// 指示<see cref="IXSettings"/>操作对象的转换类别.
     /// </summary>
-    public abstract class USettingsBase : XmlBase
+    [Obsolete]
+    public enum ConvertType
+    {
+        Convert,
+        Transfer,
+        Enum,
+        Collection,
+        Dictionary,
+        User,
+    }
+    
+/// <summary>
+    /// 轻量设置类,为可读写属性提供读取写入方法.
+    /// 支持基础类型自定义类型及集合类型(仅支持<see cref="Array"/>,<see cref="List{T}"/>和<see cref="Dictionary{TKey, TValue}"/>).
+    /// </summary>
+    [Obsolete]
+    public interface IXSettings : IXmlFile
+    {
+        void OnSettingsInitialized();
+    }
+
+    [Obsolete]
+    public static class IXSettingsExtension
     {
         /// <summary>
         ///将对象转化为等价<see cref="XElement"/>.
@@ -81,6 +101,10 @@ namespace XCore.Component
                     result = time.ToString();
                 }
                 return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), result);
+            }
+            else if (t == ConvertType.Enum)
+            {
+                return new XElement(elementName, new XAttribute("type", type.GetAssemblyQualifiedName()), Enum.GetName(type, value));
             }
             else if (t == ConvertType.Collection)
             {
@@ -154,6 +178,11 @@ namespace XCore.Component
                 }
                 return o;
             }
+            else if (t == ConvertType.Enum)
+            {
+                string s = element.Value;
+                return Enum.Parse(type, s);
+            }
             else if (t == ConvertType.Collection)
             {
                 dynamic result = null;
@@ -214,7 +243,7 @@ namespace XCore.Component
                     }
 
                     XElement e = element.Element(elementName);
-                    Type contentType = Type.GetType(e.Attribute("type").Value);
+                    Type contentType = ToolKitExtensions.GetAssemblyQualifiedType(e.Attribute("type").Value);
 
                     object o = ToObject(e, contentType);
                     propertyInfo.SetValue(result, o);
@@ -251,6 +280,10 @@ namespace XCore.Component
             {
                 return t;
             }
+            else if (type.BaseType == typeof(Enum))
+            {
+                return ConvertType.Enum;
+            }
             else if (type.BaseType == typeof(Array) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)))
             {
                 return ConvertType.Collection;
@@ -265,113 +298,14 @@ namespace XCore.Component
             }
         }
 
-        [Obsolete("", true)]
-        public static object LoadObject(string fileName, Type type)
+        private static void DeSerialize(this IXSettings obj, XElement xElement)
         {
-            throw new NotImplementedException();
-        }
-        [Obsolete("", true)]
-        public static void SaveObject(object obj, string fileName, Type type)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// 用序列化方法加载reference的成员.
-        /// </summary>
-        /// <param name="reference">引用.</param>
-        /// <param name="fileName">xml文件名.</param>
-        /// <param name="option">操作.</param>
-        /// <param name="condition">判断条件,用以忽略不必要的属性.</param>
-        internal static void XSerialize(object reference, string fileName, XSerializeOption option, Predicate<string> condition = null)
-        {
-            if (option == XSerializeOption.Serialize)
+            foreach (var propertyInfo in obj.GetType().GetProperties())
             {
-                string comment = "设置类1.0.4.0版本,基于USettingsObject.";
-
-                XElement xElement = new XElement(reference.GetType().ToString());
-                foreach (var propertyInfo in reference.GetType().GetProperties())
+                if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
                 {
-                    if (condition == null || condition(propertyInfo.Name))
-                    {
-                        XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, reference));
-                        if (element != null)
-                        {
-                            xElement.Add(element);
-                        }
-                    }
-                }
-
-                XDocument xDocument = new XDocument(new XComment(comment), xElement);
-                xDocument.Save(fileName);
-            }
-            else
-            {
-                if (File.Exists(fileName))
-                {
-                    XDocument xDocument;
                     try
                     {
-                        xDocument = XDocument.Load(fileName);
-                    }
-                    catch (Exception)//>>说明文件被破坏
-                    {
-                        File.Delete(fileName);
-                        return;
-                    }
-
-                    foreach (var propertyInfo in reference.GetType().GetProperties())
-                    {
-                        if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
-                        {
-
-                            string elementName = propertyInfo.Name;
-                            XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
-                            if (attribute != null)
-                            {
-                                elementName = attribute.ElementName;
-                            }
-
-                            XElement element = xDocument.Root.Element(elementName);
-
-                            if (element != null)
-                            {
-                                if (condition == null || condition(elementName))
-                                {
-                                    object o = ToObject(element, propertyInfo.PropertyType);
-                                    propertyInfo.SetValue(reference, o);
-                                }
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        internal static void XSerialize(object reference, ref XElement xDocument, XSerializeOption option, Predicate<string> condition = null)
-        {
-            if (option == XSerializeOption.Serialize)
-            {
-                XElement xElement = new XElement(reference.GetType().ToString());
-                foreach (var propertyInfo in reference.GetType().GetProperties())
-                {
-                    if (condition == null || condition(propertyInfo.Name))
-                    {
-                        XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, reference));
-                        if (element != null)
-                        {
-                            xElement.Add(element);
-                        }
-                    }
-                }
-                xDocument = xElement;
-            }
-            else
-            {
-                foreach (var propertyInfo in reference.GetType().GetProperties())
-                {
-                    if (propertyInfo.GetCustomAttribute(typeof(XmlIgnoreAttribute)) == null && propertyInfo.CanWrite && propertyInfo.CanRead)
-                    {
-
                         string elementName = propertyInfo.Name;
                         XmlElementAttribute attribute = (XmlElementAttribute)propertyInfo.GetCustomAttribute(typeof(XmlElementAttribute));
                         if (attribute != null)
@@ -379,37 +313,62 @@ namespace XCore.Component
                             elementName = attribute.ElementName;
                         }
 
-                        XElement element = xDocument. Element(elementName);
+                        XElement element = xElement.Element(elementName);
+                        Type contentType = ToolKitExtensions.GetAssemblyQualifiedType(element.Attribute("type").Value);
 
-                        if (element != null)
-                        {
-                            if (condition == null || condition(elementName))
-                            {
-                                object o = ToObject(element, propertyInfo.PropertyType);
-                                propertyInfo.SetValue(reference, o);
-                            }
 
-                        }
+
+                        object o = ToObject(element, contentType);
+                        propertyInfo.SetValue(obj, o);
+                    }
+                    catch (Exception)
+                    {
                     }
                 }
             }
         }
-    }
-
-    public class XSerializer<T>
-    {
-        public XSerializer(T reference, string fileName, Predicate<string> condition = null)
+        private static XElement Serialize(this IXSettings obj)
         {
-            Reference = reference;
-            FileName = fileName;
-            Condition = condition;
+            XElement xElement = new XElement(obj.GetType().ToString());
+            //XDocument xDocument = CreateXml(this.GetType().ToString());
+            foreach (var propertyInfo in obj.GetType().GetProperties())
+            {
+                XElement element = ToXElement(new KeyValuePair<PropertyInfo, object>(propertyInfo, obj));
+                if (element != null)
+                {
+                    xElement.Add(element);
+                }
+            }
+            return xElement;
         }
 
-        public T Reference { get; }
-        public string FileName { get; set; }
-        public Predicate<string> Condition { get; set; }
-
-        public void Serialize() => USettingsBase.XSerialize((object)Reference, FileName, XSerializeOption.Serialize, Condition);
-        public void DeSerialize() => USettingsBase.XSerialize(Reference, FileName, XSerializeOption.DeSerialize, Condition);
+        public static void Load(this IXSettings obj)
+        {
+            if (File.Exists(obj._FileName()))
+            {
+                XDocument xDocument;
+                try
+                {
+                    xDocument = XDocument.Load(obj._FileName());
+                }
+                catch (Exception)//>>说明文件被破坏
+                {
+                    File.Delete(obj._FileName());
+                    return;
+                }
+                ((IXSerializable)obj).DeSerialize(xDocument.Root);
+            }
+            obj.OnSettingsInitialized();
+        }
+        public static void Save(this IXSettings obj)
+        {
+            XElement xElement = ((IXSerializable)obj).Serialize();
+            XDocument xDocument = new XDocument(new XComment(obj._Comment), xElement);
+            if (!Directory.Exists(Path.GetDirectoryName(obj._FileName())))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(obj._FileName()));
+            }
+            xDocument.Save(obj._FileName());
+        }
     }
 }

@@ -93,11 +93,5 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XCoreLib\XCoreLib.csproj">
-      <Project>{65112475-1d8b-4b02-b5cb-18f4780e9665}</Project>
-      <Name>XCoreLib</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

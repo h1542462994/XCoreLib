@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XCore.Remoting
 {
-    public class FileExtensions
+    public static class FileExtensions
     {
         public static string[] Pictures => new[] { ".jpg", ".png", ".bmp", ".jpeg", ".tif", ".tiff" };
 

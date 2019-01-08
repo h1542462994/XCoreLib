@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XCore.Remoting.Ftp
 {
-    public class FtpElementTreeBuilder : XmlBase
+    public class FtpElementTreeBuilder : IXmlFile
     {
         
         protected override string Comment => throw new NotImplementedException();

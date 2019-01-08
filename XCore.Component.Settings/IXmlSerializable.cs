@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace XCore.InnerAnalyser
+namespace XCore
 {
     /// <summary>
     /// 支持转换至<see cref="XDocument"/>或从<see cref="XDocument"/>转换为对象.

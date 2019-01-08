@@ -185,7 +185,7 @@ namespace XCore.Remoting.Ftp
         /// <returns></returns>
         public string[] GetFilesDetailList()
         {
-            string[] downloadFiles;
+            //string[] downloadFiles;
             try
             {
                 StringBuilder result = new StringBuilder();
@@ -218,7 +218,7 @@ namespace XCore.Remoting.Ftp
             }
             catch (Exception ex)
             {
-                downloadFiles = null;
+                //downloadFiles = null;
                 throw new Exception("FtpHelper  Error --> " + ex.Message);
             }
         }
