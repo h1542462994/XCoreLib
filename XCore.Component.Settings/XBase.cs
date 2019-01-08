@@ -24,9 +24,9 @@ namespace XCore
 
     public static class IFileEntityExtension
     {
-        public static string _FileName(this IFileEntity obj)
+        public static string _FileName(this IFileEntity obj,string extension)
         {
-            return obj._Folder + obj._DisplayName + ".xml";
+            return obj._Folder + obj._DisplayName + "." + extension;
         }
         public static XDocument CreateNew(this IXmlFileEntity obj, string root)
         {

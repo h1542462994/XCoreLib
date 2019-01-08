@@ -295,6 +295,7 @@ namespace XCore.Web.Ftp
         /// <param name="uri"></param>
         /// <param name="isFullName"></param>
         /// <returns></returns>
+        [Obsolete]
         public FtpDownloadFileTask CreateDownloadTask(string uri, bool isFullName = false)
         {
             return new FtpDownloadFileTask(this, uri, isFullName);

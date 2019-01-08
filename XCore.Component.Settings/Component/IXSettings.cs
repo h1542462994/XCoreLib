@@ -25,11 +25,11 @@ namespace XCore.Component
         User,
     }
     
-/// <summary>
+    /// <summary>
     /// 轻量设置类,为可读写属性提供读取写入方法.
     /// 支持基础类型自定义类型及集合类型(仅支持<see cref="Array"/>,<see cref="List{T}"/>和<see cref="Dictionary{TKey, TValue}"/>).
     /// </summary>
-    [Obsolete]
+    [Obsolete("请改用更优雅的IJSettings")]
     public interface IXSettings : IXmlFileEntity
     {
         void OnSettingsInitialized();
@@ -344,16 +344,16 @@ namespace XCore.Component
 
         public static void Load(this IXSettings obj)
         {
-            if (File.Exists(obj._FileName()))
+            if (File.Exists(obj._FileName("xml")))
             {
                 XDocument xDocument;
                 try
                 {
-                    xDocument = XDocument.Load(obj._FileName());
+                    xDocument = XDocument.Load(obj._FileName("xml"));
                 }
                 catch (Exception)//>>说明文件被破坏
                 {
-                    File.Delete(obj._FileName());
+                    File.Delete(obj._FileName("xml"));
                     return;
                 }
                 obj.DeSerialize(xDocument.Root);
@@ -364,11 +364,11 @@ namespace XCore.Component
         {
             XElement xElement = obj.Serialize();
             XDocument xDocument = new XDocument(new XComment(obj._Comment), xElement);
-            if (!Directory.Exists(Path.GetDirectoryName(obj._FileName())))
+            if (!Directory.Exists(Path.GetDirectoryName(obj._FileName("xml"))))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(obj._FileName()));
+                Directory.CreateDirectory(Path.GetDirectoryName(obj._FileName("xml")));
             }
-            xDocument.Save(obj._FileName());
+            xDocument.Save(obj._FileName("xml"));
         }
     }
 }

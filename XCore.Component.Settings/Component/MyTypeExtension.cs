@@ -53,6 +53,6 @@ namespace XCore
                 return Type.GetType(value);
             }
         }
-
+        public static bool CanWriteAndRead(this System.Reflection.PropertyInfo obj) => obj.CanWrite && obj.CanWrite;
     }
 }
